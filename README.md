@@ -21,3 +21,10 @@ The project includes a default user :
 Email: junior@test.com
 
 Password: password
+
+
+## Build
+```
+docker compose up --build -d
+docker compose exec php php bin/console doctrine:migrations:migrate
+```
