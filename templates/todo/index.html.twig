@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello TodoController!{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Todos</h2>
+        <a href="{{ path('app_todo_new') }}" class="btn btn-primary">+ New Todo</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            {{ form_start(filterForm, {'attr': {'class': 'row g-2 align-items-end'}}) }}
+                <div class="col-md-3">
+                    {{ form_label(filterForm.search) }}
+                    {{ form_widget(filterForm.search, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <div class="col-md-2">
+                    {{ form_label(filterForm.status) }}
+                    {{ form_widget(filterForm.status, {'attr': {'class': 'form-select'}}) }}
+                </div>
+                <div class="col-md-2">
+                    {{ form_label(filterForm.sort) }}
+                    {{ form_widget(filterForm.sort, {'attr': {'class': 'form-select'}}) }}
+                </div>
+                <div class="col-md-1 d-flex gap-1">
+                    <button type="submit" class="btn btn-primary">Go</button>
+                    <a href="{{ path('app_todo') }}" class="btn btn-outline-secondary">✕</a>
+                </div>
+            {{ form_end(filterForm) }}
+        </div>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+
+    {% if todos is empty %}
+        <p class="text-muted">No todos yet!</p>
+    {% else %}
+        <div class="list-group">
+            {% for todo in todos %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ todo.title }}</strong>
+                        {% if todo.description %}
+                            <p class="mb-0 text-muted small">{{ todo.description }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge 
+                            {% if todo.status.value == 'pending' %}bg-secondary
+                            {% elseif todo.status.value == 'in_progress' %}bg-warning text-dark
+                            {% else %}bg-success{% endif %}">
+                            {{ todo.status.value }}
+                        </span>
+
+                        <form method="post" action="{{ path('app_todo_status', {id: todo.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('status' ~ todo.id) }}">
+                            <button class="btn btn-sm btn-outline-secondary">
+                                → {% if todo.status.value == 'open' %}Done
+                                {% else %} Reopen
+                                {% endif %}
+                            </button>
+                        </form>
+
+                        <a href="{{ path('app_todo_edit', {id: todo.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+
+                        <form method="post" action="{{ path('app_todo_delete', {id: todo.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ todo.id) }}">
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
